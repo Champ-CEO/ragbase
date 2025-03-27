@@ -15,11 +15,10 @@ class Config:
     class Model:
         EMBEDDINGS = "BAAI/bge-base-en-v1.5"
         RERANKER = "ms-marco-MiniLM-L-12-v2"
-        LOCAL_LLM = "gemma2:9b"
-        REMOTE_LLM = "llama-3.1-70b-versatile"
+        GENERAL_LLM = "llama-3.3-70b-versatile"
+        COMPLEX_LLM = "deepseek-r1-distill-llama-70b"
         TEMPERATURE = 0.0
         MAX_TOKENS = 8000
-        USE_LOCAL = False
 
     class Retriever:
         USE_RERANKER = True

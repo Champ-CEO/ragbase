@@ -28,10 +28,10 @@ LOADING_MESSAGES = [
 
 
 @st.cache_resource(show_spinner=False)
-def build_qa_chain(files):
+def build_qa_chain(files, use_complex_model=False):
     file_paths = upload_files(files)
     vector_store = Ingestor().ingest(file_paths)
-    llm = create_llm()
+    llm = create_llm(use_complex_model=use_complex_model)
     retriever = create_retriever(llm, vector_store=vector_store)
     return create_chain(llm, retriever)
 
@@ -66,13 +66,17 @@ def show_upload_documents():
         uploaded_files = st.file_uploader(
             label="Upload PDF files", type=["pdf"], accept_multiple_files=True
         )
+        use_complex_model = st.checkbox(
+            "Use complex model for advanced reasoning tasks",
+            help="Enable deepseek-r1-distill-llama-70b for complex queries requiring deeper analysis"
+        )
     if not uploaded_files:
         st.warning("Please upload PDF documents to continue!")
         st.stop()
 
     with st.spinner("Analyzing your document(s)..."):
         holder.empty()
-        return build_qa_chain(uploaded_files)
+        return build_qa_chain(uploaded_files, use_complex_model=use_complex_model)
 
 
 def show_message_history():
