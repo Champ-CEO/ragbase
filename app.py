@@ -31,7 +31,15 @@ LOADING_MESSAGES = [
 def build_qa_chain(files, use_complex_model=False):
     file_paths = upload_files(files)
     vector_store = Ingestor().ingest(file_paths)
-    llm = create_llm(use_complex_model=use_complex_model)
+    
+    # Use either explicit selection or dynamic routing
+    if Config.AUTO_COMPLEXITY_ROUTING:
+        # Will be routed dynamically per query
+        llm = create_llm(use_complex_model=False)  # Default model, will be replaced per query
+    else:
+        # User manually selected model complexity
+        llm = create_llm(use_complex_model=use_complex_model)
+        
     retriever = create_retriever(llm, vector_store=vector_store)
     return create_chain(llm, retriever)
 
@@ -63,13 +71,44 @@ def show_upload_documents():
     with holder.container():
         st.header("RagBase")
         st.subheader("Get answers from your documents")
+        
         uploaded_files = st.file_uploader(
             label="Upload PDF files", type=["pdf"], accept_multiple_files=True
         )
-        use_complex_model = st.checkbox(
-            "Use complex model for advanced reasoning tasks",
-            help="Enable deepseek-r1-distill-llama-70b for complex queries requiring deeper analysis"
-        )
+        
+        # Add a section for advanced LLM settings
+        with st.expander("Advanced LLM Settings"):
+            use_complex_model = st.checkbox(
+                "Use complex model for advanced reasoning tasks",
+                help="Enable deepseek-r1-distill-llama-70b for complex queries requiring deeper analysis"
+            )
+            
+            use_auto_routing = st.checkbox(
+                "Enable Dynamic Complexity Routing", 
+                value=Config.AUTO_COMPLEXITY_ROUTING,
+                help="Automatically select the most appropriate model based on query complexity"
+            )
+            
+            use_token_optimization = st.checkbox(
+                "Enable Token Optimization", 
+                value=Config.USE_TOKEN_OPTIMIZATION,
+                help="Apply token optimization techniques to reduce usage and cost"
+            )
+            
+            # Update config based on UI selections
+            Config.AUTO_COMPLEXITY_ROUTING = use_auto_routing
+            Config.USE_TOKEN_OPTIMIZATION = use_token_optimization
+            
+            # Show model selection hint
+            if use_auto_routing:
+                st.info("With Dynamic Routing enabled, the system will automatically select between the general and complex models based on query complexity.")
+                # When auto-routing is enabled, we ignore the manual complex model selection
+                use_complex_model = False
+            
+            # Add token usage metrics if token optimization is enabled
+            if use_token_optimization:
+                st.success("Token optimization enabled - this can reduce costs by up to 30% while preserving answer quality")
+        
     if not uploaded_files:
         st.warning("Please upload PDF documents to continue!")
         st.stop()

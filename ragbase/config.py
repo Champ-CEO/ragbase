@@ -24,5 +24,9 @@ class Config:
         USE_RERANKER = True
         USE_CHAIN_FILTER = False
 
+    # Optimization settings
+    AUTO_COMPLEXITY_ROUTING = True  # Automatically route queries to appropriate model based on complexity
+    USE_TOKEN_OPTIMIZATION = True   # Apply token optimization techniques to reduce token usage
+
     DEBUG = False
     CONVERSATION_MESSAGES_LIMIT = 6
