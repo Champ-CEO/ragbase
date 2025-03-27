@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "ragbase"
-version = "0.1.0"
-description = ""
-authors = ["Venelin Valkov <venelin@curiousily.com>"]
+version = "0.1.1"
+description = "MLExpert-v1 project: Private Chat with Your Documents"
+authors = ["Ellie Cocco <galcocco@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
